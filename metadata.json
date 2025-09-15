@@ -1,0 +1,12 @@
+{
+	"id": "Rulers",
+	"name": "Rulers",
+	"display_name": "Rulers",
+	"author": ["SleepyG11"],
+	"description": "Rulers for measuring in-game sizes",
+	"prefix": "rulers",
+	"main_file": "steamodded.lua",
+	"priority": 0,
+	"version": "1.0.0",
+	"dependencies": ["DebugPlus"]
+}
