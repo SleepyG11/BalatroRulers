@@ -77,7 +77,7 @@ function Rulers.utils.serialize(t, indent)
 	end
 	for k, v in pairs(t) do
 		if type(k) == "string" then
-			str = str .. indent .. "\t" .. "[" .. Rulers.utils.serialize_string(k) .. "] = "
+			str = str .. indent .. "\t" .. "[" .. string.format("%q", k) .. "] = "
 
 			if type(v) == "number" then
 				str = str .. v
