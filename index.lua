@@ -10,8 +10,12 @@ Rulers = {
 			big_step = 1,
 			medium_step = 0.5,
 			small_step = 0.1,
+			big_step_pixels = false,
+			medium_step_pixels = false,
+			small_step_pixels = false,
 
 			size = 3,
+			size_pixels = false,
 			line_size = 2,
 			rotate = 0,
 			colour = { 0, 1, 1, 1 },
@@ -97,6 +101,52 @@ function Rulers.utils.serialize(t, indent)
 	str = str .. indent .. "}"
 	return str
 end
+function Rulers.utils.normalize_dashes(s)
+	if s:sub(1, 1) == "-" then
+		return "-" .. s:gsub("^%-+", "")
+	end
+	return s
+end
+Rulers.utils.true_string = {
+	on = true,
+	t = true,
+	["true"] = true,
+	y = true,
+	yes = true,
+}
+function Rulers.utils.is_true(s)
+	s = string.lower(s)
+	if Rulers.utils.true_string[s] then
+		return true
+	end
+	local n = tonumber(s)
+	if n then
+		return n ~= 0
+	end
+	return false
+end
+function Rulers.utils.as_angle(s)
+	local result
+	local suffix = s:sub(#s - 2, #s)
+	if suffix == "rad" then
+		s = s:sub(1, #s - 3)
+		result = math.deg(tonumber(s) or 0)
+	elseif suffix == "deg" then
+		s = s:sub(1, #s - 3)
+		result = tonumber(s) or 0
+	else
+		result = tonumber(s) or 0
+	end
+	return result % 360
+end
+function Rulers.utils.as_distance_unit(s)
+	if s:sub(#s - 1, #s) == "px" then
+		s = s:sub(1, #s - 2)
+		s = tonumber(s) or 0
+		return s / G.TILESIZE / G.TILESCALE, s
+	end
+	return tonumber(s) or 0, false
+end
 
 --
 
@@ -171,89 +221,169 @@ Flags (all optional):
 -numbers [on | off]
 ]]
 
+		local pre_setters = {
+			["-help"] = function()
+				return info_message
+			end,
+			["-reset"] = function()
+				Rulers.config.current = Rulers.utils.table_merge({}, Rulers.config.default)
+				Rulers.cc = Rulers.config.current
+				Rulers.config.save()
+				return "Rulers reset to default"
+			end,
+		}
+
+		pre_setters["-h"] = pre_setters["-help"]
+		pre_setters["-default"] = pre_setters["-reset"]
+
 		local setters = {
-			["-v"] = function(arg)
-				Rulers.cc.visible = string.lower(arg) == "on"
+			["-visible"] = function(arg)
+				if arg == "default" then
+					arg = tostring(Rulers.config.default.visible)
+				end
+				Rulers.cc.visible = Rulers.utils.is_true(arg)
 			end,
-			["-l"] = function(arg)
-				Rulers.cc.size = math.max(0, tonumber(arg) or 0) or 0
+			["-length"] = function(arg)
+				if arg == "default" then
+					arg = tostring(Rulers.config.default.size)
+				end
+				local size, pixels = Rulers.utils.as_distance_unit(arg)
+				Rulers.cc.size = math.max(0, size)
+				Rulers.cc.size_pixels = pixels
 			end,
-			["-s"] = function(arg)
+			["-size"] = function(arg)
+				if arg == "default" then
+					arg = tostring(Rulers.config.default.line_size)
+				end
 				Rulers.cc.line_size = math.max(0, tonumber(arg) or 0) or 0
 			end,
-			["-r"] = function(arg)
-				Rulers.cc.rotate = (tonumber(arg) or 0) % 360
+			["-rotate"] = function(arg)
+				if arg == "default" then
+					arg = tostring(Rulers.config.default.rotate)
+				end
+				Rulers.cc.rotate = Rulers.utils.as_angle(arg) or 0
 			end,
-			["-c"] = function(arg)
+			["-colour"] = function(arg)
 				pcall(function()
-					Rulers.cc.colour = HEX(arg)
+					if arg == "default" then
+						Rulers.cc.colour = Rulers.config.default.colour
+					else
+						Rulers.cc.colour = HEX(arg)
+					end
 				end)
 			end,
-			["-dir"] = function(arg)
+			["-direction"] = function(arg)
+				if arg == "default" then
+					arg = tostring(Rulers.config.default.display)
+				end
 				Rulers.cc.display = arg or ""
 			end,
 			["-grid"] = function(arg)
-				Rulers.cc.grid = string.lower(arg) == "on"
+				if arg == "default" then
+					arg = tostring(Rulers.config.default.grid)
+				end
+				Rulers.cc.grid = Rulers.utils.is_true(arg)
 			end,
 			["-numbers"] = function(arg)
-				Rulers.cc.numbers = string.lower(arg) == "on"
+				if arg == "default" then
+					arg = tostring(Rulers.config.default.numbers)
+				end
+				Rulers.cc.numbers = Rulers.utils.is_true(arg)
 			end,
-			["-st"] = function(arg)
+			["-steps"] = function(arg)
+				if arg == "default" then
+					arg = "default,default,default"
+				end
 				local result = {}
 				for token in string.gmatch(arg, "([^,]+)") do
 					table.insert(result, token)
 				end
 				if result[1] then
-					Rulers.cc.big_step = math.max(0, tonumber(result[1]) or 0)
+					if result[1] == "default" then
+						result[1] = tostring(Rulers.config.default.big_step)
+					end
+					local size, pixels = Rulers.utils.as_distance_unit(result[1])
+					Rulers.cc.big_step = math.max(0, size)
+					Rulers.cc.big_step_pixels = pixels
 				end
 				if result[2] then
-					Rulers.cc.medium_step = math.max(0, tonumber(result[2]) or 0)
+					if result[2] == "default" then
+						result[2] = tostring(Rulers.config.default.medium_step)
+					end
+					local size, pixels = Rulers.utils.as_distance_unit(result[2])
+					Rulers.cc.medium_step = math.max(0, size)
+					Rulers.cc.medium_step_pixels = pixels
 				end
 				if result[3] then
-					Rulers.cc.small_step = math.max(0, tonumber(result[3]) or 0)
+					if result[3] == "default" then
+						result[3] = tostring(Rulers.config.default.small_step)
+					end
+					local size, pixels = Rulers.utils.as_distance_unit(result[3])
+					Rulers.cc.small_step = math.max(0, size)
+					Rulers.cc.small_step_pixels = pixels
 				end
 			end,
 		}
-		setters["-visible"] = setters["-v"]
-		setters["-length"] = setters["-l"]
-		setters["-size"] = setters["-s"]
-		setters["-rotate"] = setters["-r"]
-		setters["-visible"] = setters["-v"]
-		setters["-colour"] = setters["-c"]
-		setters["-color"] = setters["-c"]
-		setters["-direction"] = setters["-dir"]
-		setters["-steps"] = setters["-st"]
-		setters["-num"] = setters["-numbers"]
-		setters["-nums"] = setters["-numbers"]
+		local instant_setters = {
+			["-show"] = function()
+				Rulers.cc.visible = true
+			end,
+			["-hide"] = function()
+				Rulers.cc.visible = false
+			end,
+		}
+
+		local aliases_list = {
+			["-visible"] = { "-v" },
+			["-length"] = { "-l", "-len" },
+			["-size"] = { "-s", "-sizes" },
+			["-rotate"] = { "-r", "-rot" },
+			["-colour"] = { "-c", "-color" },
+			["-direction"] = { "-d", "-dir" },
+			["-grid"] = { "-g" },
+			["-numbers"] = { "-n", "-nums", "-num" },
+			["-steps"] = { "-st", "-step" },
+		}
+
+		for command, aliases in pairs(aliases_list) do
+			for _, alias in ipairs(aliases) do
+				setters[alias] = setters[command]
+			end
+		end
 
 		debugplus.addCommand({
 			name = "rulers",
-			shortDesc = "Configure current Rulers config",
+			shortDesc = "Configure current Rulers",
 			desc = info_message,
 			exec = function(args, rawArgs, dp)
 				if #args == 0 then
 					return info_message
 				end
-				if rawArgs == "help" or rawArgs == "-h" or rawArgs == "--help" then
-					return info_message
-				end
-				if rawArgs == "-reset" then
-					Rulers.config.current = Rulers.utils.table_merge({}, Rulers.config.default)
-					Rulers.cc = Rulers.config.current
-					Rulers.config.save()
-					return "Rulers config reset to default"
-				end
-				local current_setter = function(arg) end
 
+				rawArgs = Rulers.utils.normalize_dashes("-" .. rawArgs)
+				if pre_setters[rawArgs] then
+					return pre_setters[rawArgs]()
+				end
+
+				local is_success
+				local current_setter
 				for _, arg in ipairs(args) do
-					if setters[arg] then
-						current_setter = setters[arg]
-					else
+					local nArg = Rulers.utils.normalize_dashes(arg)
+					if current_setter then
 						current_setter(arg)
+						current_setter = nil
+						is_success = true
+					elseif instant_setters[nArg] then
+						instant_setters[nArg]()
+						current_setter = nil
+						is_success = true
+					elseif setters[nArg] then
+						current_setter = setters[nArg]
 					end
 				end
+
 				Rulers.config.save()
-				return "Rulers updated"
+				return is_success and "Rulers updated" or "Rulers not updated: no valid args passed"
 			end,
 		})
 	end
@@ -265,22 +395,38 @@ function Rulers.draw()
 		return
 	end
 
+	local real_scale = G.TILESIZE * G.TILESCALE
+
+	if config.big_step_pixels then
+		config.big_step = config.big_step_pixels / real_scale
+	end
+	if config.medium_step_pixels then
+		config.medium_step = config.medium_step_pixels / real_scale
+	end
+	if config.small_step_pixels then
+		config.small_step = config.small_step_pixels / real_scale
+	end
+	if config.size_pixels then
+		config.size = config.size_pixels / real_scale
+	end
+
 	local variants = {
 		{
 			config.big_step,
+			config.big_step_pixels,
 			0.3,
 		},
 		{
 			config.medium_step,
+			config.medium_step_pixels,
 			0.225,
 		},
 		{
 			config.small_step,
+			config.small_step_pixels,
 			0.125,
 		},
 	}
-
-	local real_scale = G.TILESIZE * G.TILESCALE
 
 	love.graphics.push()
 	love.graphics.scale(real_scale)
@@ -291,7 +437,7 @@ function Rulers.draw()
 
 	local is_v, is_h = config.display:find("v"), config.display:find("h")
 	for index, variant in ipairs(variants) do
-		local step, width = unpack(variant)
+		local step, pixels, width = unpack(variant)
 		if step > 0 then
 			local total = 0
 			while total <= config.size do
@@ -309,13 +455,13 @@ function Rulers.draw()
 					end
 					if Rulers.cc.numbers then
 						love.graphics.scale(1 / real_scale)
-						local text = string.format("%.1f", total)
+						local text = string.format("%.1f", total * (pixels and real_scale or 1))
 						local font = love.graphics.getFont()
 						local textWidth = font:getWidth(text)
 						local textHeight = font:getHeight()
 
 						-- Math
-						if is_v then
+						if is_h then
 							local r_scale = 1
 							if config.rotate > 180 then
 								r_scale = -1
@@ -330,7 +476,7 @@ function Rulers.draw()
 								r_scale
 							)
 						end
-						if is_h then
+						if is_v then
 							local r_scale = 1
 							if config.rotate > 90 and config.rotate <= 270 then
 								r_scale = -1
