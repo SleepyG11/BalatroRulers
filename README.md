@@ -407,4 +407,10 @@ Options:
 
     -reset, -default
         Reset all options to their default values
+
+    -pin
+        Enable pin mode: Left Click to place rulers on screen; Unpins pinned rulers
+
+    -unpin
+        Unpin pinned rulers
 ```

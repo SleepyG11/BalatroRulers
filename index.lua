@@ -2,6 +2,7 @@ Rulers = {
 	version = "1.1.0",
 
 	utils = {},
+	pin_mode = false,
 
 	config = {
 		default = {
@@ -23,6 +24,9 @@ Rulers = {
 
 			grid = false,
 			numbers = true,
+
+			point_x = false,
+			point_y = false,
 		},
 		current = {},
 	},
@@ -211,6 +215,10 @@ Options:
         Toggle numbers display
     -reset, -default                    
         Reset all options to their default values
+    -pin
+        Enable pin mode: Left Click to place rulers on screen; Unpins pinned rulers
+    -unpin
+        Unpin pinned rulers
  
 Use "default" keyword to reset a property to its default value
     -l default
@@ -244,6 +252,31 @@ Examples:
 				Rulers.cc = Rulers.config.current
 				Rulers.config.save()
 				return "Rulers reset to default"
+			end,
+			["-pin"] = function()
+				local r
+				if Rulers.cc.point_x or Rulers.cc.point_y then
+					Rulers.pin_mode = false
+					r = "Rulers unpinned"
+				else
+					Rulers.pin_mode = not Rulers.pin_mode
+					if Rulers.pin_mode then
+						r = "Rulers pin mode: Left Click to pin, Right Click or repeat command to cancel"
+					else
+						r = "Rulers pin cancelled"
+					end
+				end
+				Rulers.cc.point_x = false
+				Rulers.cc.point_y = false
+				Rulers.config.save()
+				return r
+			end,
+			["-unpin"] = function()
+				Rulers.cc.point_x = false
+				Rulers.cc.point_y = false
+				Rulers.pin_mode = false
+				Rulers.config.save()
+				return "Rulers unpinned"
 			end,
 		}
 
@@ -406,12 +439,8 @@ Examples:
 	end
 end
 
-function Rulers.draw()
-	local config = Rulers.cc
-	if not config or not G.CURSOR or not config.visible then
-		return
-	end
-
+function Rulers.draw_rulers(x, y, config)
+	config = config or Rulers.cc
 	local real_scale = G.TILESIZE * G.TILESCALE
 
 	if config.big_step_pixels then
@@ -448,7 +477,7 @@ function Rulers.draw()
 	love.graphics.push()
 	love.graphics.scale(real_scale)
 	love.graphics.setLineWidth(config.line_size / real_scale)
-	love.graphics.translate(G.CURSOR.T.x, G.CURSOR.T.y)
+	love.graphics.translate(x, y)
 	love.graphics.rotate(math.rad(config.rotate))
 	love.graphics.setColor(unpack(config.colour))
 
@@ -472,7 +501,12 @@ function Rulers.draw()
 					end
 					if Rulers.cc.numbers then
 						love.graphics.scale(1 / real_scale)
-						local text = string.format("%.1f", total * (pixels and real_scale or 1))
+						local text
+						if pixels then
+							text = string.format("%dpx", total * real_scale)
+						else
+							text = string.format("%.1f", total)
+						end
 						local font = love.graphics.getFont()
 						local textWidth = font:getWidth(text)
 						local textHeight = font:getHeight()
@@ -519,6 +553,20 @@ function Rulers.draw()
 	love.graphics.pop()
 end
 
+function Rulers.draw()
+	local config = Rulers.cc
+	if not config or not G.CURSOR then
+		return
+	end
+
+	if config.point_x and config.point_y then
+		Rulers.draw_rulers(config.point_x, config.point_y, config)
+	end
+	if config.visible or Rulers.pin_mode then
+		Rulers.draw_rulers(G.CURSOR.T.x, G.CURSOR.T.y, config)
+	end
+end
+
 --
 
 local g_draw_ref = Game.draw
@@ -526,6 +574,32 @@ function Game:draw(...)
 	local r = g_draw_ref(self, ...)
 	Rulers.draw()
 	return r
+end
+
+local r_old_mouseinput = love.mousepressed
+function love.mousepressed(x, y, button, touch, ...)
+	if Rulers.pin_mode then
+		if button == 1 then
+			Rulers.cc.point_x = x / (G.TILESCALE * G.TILESIZE)
+			Rulers.cc.point_y = y / (G.TILESCALE * G.TILESIZE)
+			Rulers.pin_mode = false
+			print(
+				string.format(
+					"< Rulers pinned at (x=%.2f, y=%.2f) = (x=%dpx, y=%dpx)",
+					Rulers.cc.point_x,
+					Rulers.cc.point_y,
+					x,
+					y
+				)
+			)
+			return
+		elseif button == 2 then
+			Rulers.pin_mode = false
+			print("< Rulers pin cancelled")
+			return
+		end
+	end
+	return r_old_mouseinput(x, y, button, touch, ...)
 end
 
 Rulers.init()
