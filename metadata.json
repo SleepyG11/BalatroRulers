@@ -3,10 +3,10 @@
 	"name": "Rulers",
 	"display_name": "Rulers",
 	"author": ["SleepyG11"],
-	"description": "Rulers for measuring in-game sizes",
+	"description": "Rulers for measuring in-game sizes and distances",
 	"prefix": "rulers",
 	"main_file": "steamodded.lua",
 	"priority": 0,
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"dependencies": ["DebugPlus"]
 }

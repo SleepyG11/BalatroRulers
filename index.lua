@@ -178,47 +178,61 @@ function Rulers.init()
 		Rulers.config.load()
 		local debugplus = dpAPI.registerID("Rulers")
 
-		local info_message = [[
-rulers [...args] - Configure current Rulers config
-Flags (all optional):
+		local info_message = [[ 
+rulers [OPTIONS]
+    Update rulers appearance.
+    Each option updates only the corresponding property
+    Unspecified properties remain unchanged
  
-| Reset config to default
--reset
+Options:
+    -h, -help                           
+        Show this message
+    -show                               
+        Show rulers
+    -hide                               
+        Hide rulers
+    -v, -visible BOOLEAN                
+        Toggle rulers visibility
+    -l, -length VALUE                   
+        Set rulers length: n - game units, npx - pixels
+    -s, -size VALUE                     
+        Set lines size: n - in pixels
+    -st, -steps BIG,MEDIUM,SMALL        
+        Set line steps: n - game units, npx - pixels
+    -r, -rotate ANGLE                   
+        Set rotation angle (clockwise): n or ndeg - degrees, nrad - radians
+    -c, -colour HEX                     
+        Set colour (input passed to HEX function)
+    -d, -dir, -directions v | h | vh    
+        Set directions to display: v - vertical, h - horizontal, vh - both
+    -g, -grid BOOLEAN                   
+        Toggle grid
+    -n, -numbers BOOLEAN                
+        Toggle numbers display
+    -reset, -default                    
+        Reset all options to their default values
  
-| Toggle rulers visibility
--v [on | off]
--visible [on | off]
+Use "default" keyword to reset a property to its default value
+    -l default
+    -r default
+    -c default
+    -st default or -st default,default,default
  
-| Set length of rulers (in game units)
--l [number]
--length [number]
- 
-| Set lines size (in pixels)
--s [number]
--size [number]
- 
-| Set size for big, medium and small steps respectively (in game units)
--st [number,number,number]
--steps [number,number,number]
- 
-| Set rotation angle (in degrees clockwise)
--r [angle]
--rotate [angle]
- 
-| Set colour (input passed to HEX function)
--c [HEX]
--colour [HEX]
- 
-| Set directions to display: v - vertical, h - horizontal, vh or hv - both
--dir [v | h | vh]
--direction [v | h | vh]
-
-| Toggle grid
--grid [on | off]
-
-| Toggle numbers
--num [on | off]
--numbers [on | off]
+Examples:
+    rulers -v on                        
+        Display rulers
+    rulers -n off -g on                 
+        Disable numbers display, and enable grid display
+    rulers -l 10 -r 30 -c FFFF00        
+        Set length in game units, angle in degrees, and colour
+    rulers -l 200px -r 1.5rad -dir v    
+        Set length in pixels, angle in radians, and show only vertical ruler
+    rulers -l default                   
+        Reset rulers length to default
+    rulers -st 100px,0.5,0.125          
+        Set steps: big in pixels, medium and small in game units
+    rulers -st default,,0.125           
+        Reset big step to default, keep medium, set small
 ]]
 
 		local pre_setters = {
@@ -268,11 +282,14 @@ Flags (all optional):
 					if arg == "default" then
 						Rulers.cc.colour = Rulers.config.default.colour
 					else
+						if arg:sub(1, 1) == "#" then
+							arg = arg:sub(2)
+						end
 						Rulers.cc.colour = HEX(arg)
 					end
 				end)
 			end,
-			["-direction"] = function(arg)
+			["-directions"] = function(arg)
 				if arg == "default" then
 					arg = tostring(Rulers.config.default.display)
 				end
@@ -335,14 +352,14 @@ Flags (all optional):
 
 		local aliases_list = {
 			["-visible"] = { "-v" },
-			["-length"] = { "-l", "-len" },
-			["-size"] = { "-s", "-sizes" },
-			["-rotate"] = { "-r", "-rot" },
-			["-colour"] = { "-c", "-color" },
-			["-direction"] = { "-d", "-dir" },
+			["-length"] = { "-l" },
+			["-size"] = { "-s" },
+			["-rotate"] = { "-r" },
+			["-colour"] = { "-c" },
+			["-directions"] = { "-d", "-dir" },
 			["-grid"] = { "-g" },
-			["-numbers"] = { "-n", "-nums", "-num" },
-			["-steps"] = { "-st", "-step" },
+			["-numbers"] = { "-n" },
+			["-steps"] = { "-st" },
 		}
 
 		for command, aliases in pairs(aliases_list) do
