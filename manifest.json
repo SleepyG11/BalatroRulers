@@ -1,0 +1,7 @@
+{
+	"name": "Rulers",
+	"description": "Rulers for measuring in-game sizes and distances",
+	"version_number": "1.2.0",
+	"website_url": "https://github.com/SleepyG11/BalatroRulers",
+	"dependencies": ["Thunderstore-lovely-0.9.0", "WilsontheWolf-DebugPlus-1.5.3"]
+}
