@@ -569,37 +569,39 @@ end
 
 --
 
-local g_draw_ref = Game.draw
-function Game:draw(...)
-	local r = g_draw_ref(self, ...)
-	Rulers.draw()
-	return r
-end
-
-local r_old_mouseinput = love.mousepressed
-function love.mousepressed(x, y, button, touch, ...)
-	if Rulers.pin_mode then
-		if button == 1 then
-			Rulers.cc.point_x = x / (G.TILESCALE * G.TILESIZE)
-			Rulers.cc.point_y = y / (G.TILESCALE * G.TILESIZE)
-			Rulers.pin_mode = false
-			print(
-				string.format(
-					"< Rulers pinned at (x=%.2f, y=%.2f) = (x=%dpx, y=%dpx)",
-					Rulers.cc.point_x,
-					Rulers.cc.point_y,
-					x,
-					y
-				)
-			)
-			return
-		elseif button == 2 then
-			Rulers.pin_mode = false
-			print("< Rulers pin cancelled")
-			return
-		end
+do
+	local g_draw_ref = Game.draw
+	function Game:draw(...)
+		local r = g_draw_ref(self, ...)
+		Rulers.draw()
+		return r
 	end
-	return r_old_mouseinput(x, y, button, touch, ...)
+
+	local r_old_mouseinput = love.mousepressed
+	function love.mousepressed(x, y, button, touch, ...)
+		if Rulers.pin_mode then
+			if button == 1 then
+				Rulers.cc.point_x = x / (G.TILESCALE * G.TILESIZE)
+				Rulers.cc.point_y = y / (G.TILESCALE * G.TILESIZE)
+				Rulers.pin_mode = false
+				print(
+					string.format(
+						"< Rulers pinned at (x=%.2f, y=%.2f) = (x=%dpx, y=%dpx)",
+						Rulers.cc.point_x,
+						Rulers.cc.point_y,
+						x,
+						y
+					)
+				)
+				return
+			elseif button == 2 then
+				Rulers.pin_mode = false
+				print("< Rulers pin cancelled")
+				return
+			end
+		end
+		return r_old_mouseinput(x, y, button, touch, ...)
+	end
 end
 
 Rulers.init()

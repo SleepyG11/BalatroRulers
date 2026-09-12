@@ -155,7 +155,7 @@ rulers -st 2,1,0.25
 rulers -st 50px,25px,5px
 ```
 
-- Reset values to default (Big: `1 game unit`; Medium: `0.5 game units`; Small: `0.125 game units`)
+- Reset values to default (Big: `1 game unit`; Medium: `0.5 game units`; Small: `0.1 game units`)
 
 ```
 rulers -st default
