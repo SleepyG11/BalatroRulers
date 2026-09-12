@@ -43,6 +43,7 @@ rulers -help
 ---
 
 ### Visibility
+Toggle rulers visibility.
 
 ```text
 -v BOOLEAN
@@ -50,8 +51,6 @@ rulers -help
 -show
 -hide
 ```
-
-Toggle rulers visibility.
 
 ```text
 rulers -show
@@ -72,16 +71,17 @@ rulers -v 0
 rulers -v any_input_which_is_not_true
 ```
 
+<img width="365" height="202" alt="Default" src="https://github.com/user-attachments/assets/17f4b457-2fb9-4a54-927d-82c2e5e06f50" />
+
 ---
 
 ### Length
+Set the rulers length.
 
 ```text
 -l VALUE
 -length VALUE
 ```
-
-Set the rulers length.
 
 - Set length equal to `10 game units`
 
@@ -101,18 +101,17 @@ rulers -l 200px
 rulers -l default
 ```
 
-<!-- Image here: Length -->
+<img width="458" height="196" alt="Length" src="https://github.com/user-attachments/assets/f17c07ec-e2cc-480c-8640-71b187636e2e" />
 
 ---
 
 ### Line size
+Set the rulers line size.
 
 ```text
 -s VALUE
 -size VALUE
 ```
-
-Set the rulers line size.
 
 - Set size equal to `1 pixel`
 
@@ -126,22 +125,21 @@ rulers -s 1
 rulers -s default
 ```
 
-<!-- Image here: Size -->
+<img width="464" height="222" alt="Size" src="https://github.com/user-attachments/assets/a239b878-3aa8-41d5-bf9e-05eca411f133" />
 
 ---
 
 ### Steps
 
-_WIP description_
+Set the sizes of the three ruler step levels.
 
 ```text
 -st BIG,MEDIUM,SMALL
 -steps BIG,MEDIUM,SMALL
 ```
 
-Set the sizes of the three ruler step levels.
-
-<!-- Image here: Show which step is which -->
+<img width="386" height="190" alt="Steps - explanation" src="https://github.com/user-attachments/assets/c77f77bb-b34c-4d29-91f8-976ec4f103f8" />
+<br/>
 
 - Set values in game units
 
@@ -174,16 +172,17 @@ rulers -st 2,default,10px
 rulers -st ,,0.125
 ```
 
+<img width="412" height="172" alt="Steps - pixels" src="https://github.com/user-attachments/assets/09c8a399-c729-4141-a24c-2ada62798fb6" />
+
 ---
 
 ### Rotation
+Set the clockwise rotation angle.
 
 ```text
 -r ANGLE
 -rotate ANGLE
 ```
-
-Set the clockwise rotation angle.
 
 - Rotate `30 degrees` clockwise
 
@@ -204,19 +203,19 @@ rulers -r 30
 rulers -r default
 ```
 
-<!-- Image here: Rotation -->
+<img width="613" height="225" alt="Rotation" src="https://github.com/user-attachments/assets/bf1fc82b-a086-4a79-8bbf-2692e61c7b17" />
 
 ---
 
 ### Colour
 
+Set rulers colour.
+Supplied value is passed to vanilla `HEX` function.
+
 ```text
 -c HEX
 -colour HEX
 ```
-
-Set rulers colour.
-Supplied value is passed to vanilla `HEX` function.
 
 - Set colour to `red`
 
@@ -231,17 +230,11 @@ rulers -c #FF0000
 rulers -c default
 ```
 
-<!-- Image here: Colour -->
+<img width="358" height="136" alt="Colour" src="https://github.com/user-attachments/assets/e1dd7575-0b25-4ffa-90ff-e2fde9400b0f" />
 
 ---
 
 ### Directions
-
-```text
--d { v | h | vh }
--dir { v | h | vh }
--directions { v | h | vh }
-```
 
 Select which ruler directions should be displayed.<br/>
 _Note than it's relative to not rotated rulers: 90 degree rotated vertical will look like horizontal_
@@ -253,111 +246,71 @@ _Note than it's relative to not rotated rulers: 90 degree rotated vertical will 
 | `vh`  | Both vertical and horizontal |
 
 ```text
+-d { v | h | vh }
+-dir { v | h | vh }
+-directions { v | h | vh }
+```
+
+```text
 rulers -dir v
 rulers -dir h
 rulers -dir vh
 ```
 
-<!-- Image here: Directions -->
+<img width="368" height="134" alt="Directions" src="https://github.com/user-attachments/assets/f3fbf2d4-2839-4efc-884c-199d82d6b8dc" />
 
 ---
 
 ### Grid
+
+Toggle grid display. Disabled by default.
 
 ```text
 -g BOOLEAN
 -grid BOOLEAN
 ```
 
-Toggle grid display. Disabled by default.
-
 ```text
 rulers -g off
 rulers -g on
 ```
 
-<!-- Image here: Grid -->
+<img width="349" height="205" alt="Grid" src="https://github.com/user-attachments/assets/e952aa04-f4b9-4428-aebd-ed870f595ab9" />
 
 ---
 
 ### Numbers
+
+Toggle ruler numbers display. Enabled by default.
 
 ```text
 -n BOOLEAN
 -numbers BOOLEAN
 ```
 
-Toggle ruler numbers display. Enabled by default.
-
 ```text
 rulers -n off
 rulers -n on
 ```
 
-<!-- Image here: Numbers -->
+<img width="248" height="152" alt="Numbers" src="https://github.com/user-attachments/assets/2fc2ef45-0a52-4380-9f76-adcca1a9f939" />
 
 ---
 
 ### Reset the entire configuration
+
+Reset all options to their default values.
 
 ```text
 -reset
 -default
 ```
 
-Reset all ruler options to their default values.
-
 ```text
 rulers -default
 ```
 
 <!-- Image here: Default look -->
-
----
-
-## Examples
-
-Display rulers:
-
-```text
-rulers -v on
-```
-
-Disable numbers and enable the grid:
-
-```text
-rulers -n off -g on
-```
-
-Set length in game units, rotation in degrees, and colour:
-
-```text
-rulers -l 10 -r 30 -c FFFF00
-```
-
-Set length in pixels, rotation in radians, and display only the vertical ruler:
-
-```text
-rulers -l 200px -r 1.5rad -dir v
-```
-
-Reset only the rulers length:
-
-```text
-rulers -l default
-```
-
-Set all three step levels:
-
-```text
-rulers -st 100px,0.5,0.125
-```
-
-Reset the big step, keep the medium step unchanged, and set the small step:
-
-```text
-rulers -st default,,0.125
-```
 
 ---
 
