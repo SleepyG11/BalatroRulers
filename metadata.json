@@ -8,5 +8,7 @@
 	"main_file": "steamodded.lua",
 	"priority": 0,
 	"version": "1.2.0",
-	"dependencies": ["DebugPlus"]
+	"dependencies": ["DebugPlus"],
+	"icon_path": "icon.png",
+	"icon_width": 32
 }
