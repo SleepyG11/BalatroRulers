@@ -216,7 +216,8 @@ Options:
     -reset, -default                    
         Reset all options to their default values
     -pin
-        Enable pin mode: Left Click to place rulers on screen; Unpins pinned rulers
+        Enable pin mode: [Left Mouse] to place persistent rulers on screen
+        [Right Mouse] or repeat command to cancel
     -unpin
         Unpin pinned rulers
  
@@ -255,16 +256,11 @@ Examples:
 			end,
 			["-pin"] = function()
 				local r
-				if Rulers.cc.point_x or Rulers.cc.point_y then
-					Rulers.pin_mode = false
-					r = "Rulers unpinned"
+				Rulers.pin_mode = not Rulers.pin_mode
+				if Rulers.pin_mode then
+					r = "Rulers pin mode: [Left Mouse] to pin, [Right Mouse] or repeat command to cancel"
 				else
-					Rulers.pin_mode = not Rulers.pin_mode
-					if Rulers.pin_mode then
-						r = "Rulers pin mode: Left Click to pin, Right Click or repeat command to cancel"
-					else
-						r = "Rulers pin cancelled"
-					end
+					r = "Rulers pin cancelled"
 				end
 				Rulers.cc.point_x = false
 				Rulers.cc.point_y = false

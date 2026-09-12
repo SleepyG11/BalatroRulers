@@ -43,6 +43,7 @@ rulers -help
 ---
 
 ### Visibility
+
 Toggle rulers visibility.
 
 ```text
@@ -76,6 +77,7 @@ rulers -v any_input_which_is_not_true
 ---
 
 ### Length
+
 Set the rulers length.
 
 ```text
@@ -106,6 +108,7 @@ rulers -l default
 ---
 
 ### Line size
+
 Set the rulers line size.
 
 ```text
@@ -177,6 +180,7 @@ rulers -st ,,0.125
 ---
 
 ### Rotation
+
 Set the clockwise rotation angle.
 
 ```text
@@ -297,6 +301,13 @@ rulers -n on
 
 ---
 
+## Pin
+
+`rulers -pin` to enter pin mode. Then, [Left Mouse] to place a persistent rulers on screen.<br/>[Right Mouse] or repeat command to cancel.</br><br/>
+`rulers -unpin` to unpin pinned rulers.
+
+---
+
 ### Reset the entire configuration
 
 Reset all options to their default values.
@@ -362,7 +373,8 @@ Options:
         Reset all options to their default values
 
     -pin
-        Enable pin mode: Left Click to place rulers on screen; Unpins pinned rulers
+        Enable pin mode: [Left Mouse] to place persistent rulers on screen
+        [Right Mouse] or repeat command to cancel
 
     -unpin
         Unpin pinned rulers
